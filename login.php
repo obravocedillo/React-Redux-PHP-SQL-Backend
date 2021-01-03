@@ -14,7 +14,7 @@
         $stmt->execute();
         $result = $stmt->get_result();
         if($result->num_rows == 1){
-            $user = [];
+            $user;
             while($row = $result->fetch_assoc()) {
                 $tempId = $row["id"];
                 $tempName = $row["name"];
@@ -23,7 +23,7 @@
                 if (password_verify($password, $tempPassword)) {
                     $_SESSION["email"]=$tempEmail;
                     $_SESSION["name"]=$tempName;
-                    array_push($user,array("id"=>$tempId,"name"=>$tempName, "email"=>$tempEmail));
+                    $user = array("id"=>$tempId,"name"=>$tempName, "email"=>$tempEmail);
                     $data['success'] = true;
                     $data['msg'] = "OK";
                     $data['data'] = $user;
