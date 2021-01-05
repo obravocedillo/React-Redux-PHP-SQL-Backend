@@ -14,14 +14,30 @@
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $mysqli->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
         $stmt->bind_param("sss", $name,$email,$hash);
-        if($stmt->execute()){
-            $_SESSION["email"]=$email;
-            $_SESSION["name"]=$name;
-            $data['success'] = true;
-            $data['msg'] = "OK";
-            $data['data'] = 'Success';
-            echo json_encode($data);
-        } else {
+
+        $stmtLogin = $mysqli->prepare("SELECT id,name,email,password FROM users WHERE email=?");
+        $stmtLogin->bind_param("s",$email);
+        $stmtLogin->execute();
+        $resultLogin = $stmtLogin->get_result();
+        
+        if($resultLogin->num_rows == 0){
+            $registerId = $stmt->execute();
+            if($registerId){
+                $_SESSION["email"]=$email;
+                $_SESSION["name"]=$name;
+                $_SESSION["id"]=$registerId->insert_id;
+                $tempResponse = array("id"=>$registerId->insert_id,"email"=>$email,"name"=>$password);
+                $data['success'] = true;
+                $data['msg'] = "OK";
+                $data['data'] = $tempResponse;
+                echo json_encode($data);
+            } else {
+                $data['success'] = false;
+                $data['msg'] = "Error";
+                $data['data'] = 'Error';
+                echo json_encode($data);
+            }
+        }else{
             $data['success'] = false;
             $data['msg'] = "Error";
             $data['data'] = 'Error';
